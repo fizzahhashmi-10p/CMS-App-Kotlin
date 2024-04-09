@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/course")
-class CourseController(private val courseService: CourseService) {
+public class CourseController(private val courseService: CourseService) {
 
     @PostMapping
     fun createCourse(@RequestBody course: Course): ResponseEntity<Course> {

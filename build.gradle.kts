@@ -1,4 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 
 plugins {
 	id("org.springframework.boot") version "3.2.4"
@@ -40,4 +43,5 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty("spring.config.location", "classpath:application-test.properties")
 }

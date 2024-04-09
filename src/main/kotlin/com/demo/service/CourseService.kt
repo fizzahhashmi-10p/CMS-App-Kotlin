@@ -1,12 +1,12 @@
 package com.demo.service
 
 import com.demo.model.Course
-import com.demo.repository.CourseRespository
+import com.demo.repository.CourseRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class CourseService(private val courseRepository: CourseRespository) {
+public class CourseService(private val courseRepository: CourseRepository) {
 
     fun saveAndUpdate(course: Course): Course{
         return courseRepository.save(course)

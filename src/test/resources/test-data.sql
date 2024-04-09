@@ -1,4 +1,4 @@
-INSERT INTO course (title, description, author) VALUES
-('Math', 'Mathematics course', 'Math Teacher'),
-('Science', 'Science course', 'Science Teacher'),
-('History', 'History course', 'History Teacher');
+INSERT INTO course (title, description, author, completed) VALUES
+('Math', 'Mathematics course', 'Math Teacher', true),
+('Science', 'Science course', 'Science Teacher', false),
+('History', 'History course', 'History Teacher',true);
