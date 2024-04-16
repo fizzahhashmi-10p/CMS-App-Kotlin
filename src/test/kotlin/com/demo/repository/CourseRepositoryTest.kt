@@ -1,6 +1,6 @@
 package com.demo.repository
 
-import com.demo.model.Course
+import com.demo.entity.Course
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +22,7 @@ class CourseRepositoryTest {
 
     @Test
     fun testSaveCourse() {
-        val course = Course(title = "Math", description = "Mathematics course", author="testuser")
+        val course = Course(title = "Math", description = "Mathematics course", author ="testuser")
 
         val savedCourse = courseRepository.save(course)
 

@@ -1,6 +1,6 @@
 package com.demo.controller
 
-import com.demo.model.Course
+import com.demo.entity.Course
 import com.demo.service.CourseService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -30,7 +29,7 @@ class CourseControllerTest {
 
     @Test
     fun testCreateCourse() {
-        val course = Course(title= "Test Course", description =  "Test course Description",author= "Test Teacher")
+        val course = Course(title = "Test Course", description =  "Test course Description", author = "Test Teacher")
         val courseCreated = course.copy(id = 10)
 
         `when`(courseService.saveAndUpdate(course)).thenReturn(courseCreated)
@@ -42,7 +41,7 @@ class CourseControllerTest {
 
     @Test
     fun testGetCourseById() {
-        val course = Course(id = 10, title= "Test Course", description =  "Test course Description",author= "Test Teacher")
+        val course = Course(id = 10, title = "Test Course", description =  "Test course Description", author = "Test Teacher")
 
         `when`(courseService.fetchOne(10)).thenReturn(Optional.of(course))
         mockMvc.perform(get("/course/10")
@@ -53,7 +52,7 @@ class CourseControllerTest {
 
     @Test
     fun testUpdateCourse() {
-        val course = Course(id = 10, title= "Test Course", description =  "Test course Description",author= "Test Teacher")
+        val course = Course(id = 10, title = "Test Course", description =  "Test course Description", author = "Test Teacher")
         val courseUpdated = course.copy(title = "Updated Title")
 
         `when`(courseService.saveAndUpdate(course)).thenReturn(courseUpdated)

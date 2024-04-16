@@ -1,6 +1,10 @@
 package com.demo.controller
 
-import com.demo.model.Course
+import com.demo.dto.CourseDTO
+import com.demo.entity.Course
+import com.demo.model.CourseModel
+import com.demo.model.toCourse
+import com.demo.model.toCourseDTO
 import com.demo.service.CourseService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,33 +15,34 @@ import org.springframework.web.bind.annotation.*
 public class CourseController(private val courseService: CourseService) {
 
     @PostMapping
-    fun createCourse(@RequestBody course: Course): ResponseEntity<Course> {
-        val savedCourse = courseService.saveAndUpdate(course)
+    fun createCourse(@RequestBody course: CourseDTO): ResponseEntity<CourseModel> {
+        val savedCourse = courseService.save(course)
         return ResponseEntity(savedCourse, HttpStatus.CREATED)
     }
 
     @GetMapping
-    fun getAllCourses(): List<Course> {
+    fun getAllCourses(): List<CourseModel> {
         return courseService.fetchAll()
     }
 
     @GetMapping("/{id}")
-    fun getCourseById(@PathVariable id: Long): ResponseEntity<Course> {
+    fun getCourseById(@PathVariable id: Long): ResponseEntity<CourseModel> {
         val course = courseService.fetchOne(id)
         return course.map { ResponseEntity.ok(it) }.orElse(ResponseEntity.notFound().build())
     }
 
     @PutMapping("/{id}")
-    fun updateCourse(@PathVariable id: Long, @RequestBody data: Course): ResponseEntity<Course> {
-        val course = courseService.fetchOne(id)
-        return course.map {
-            val updatedCourse  = it.copy(
-                title = data.title,
-                description = data.description,
-                author = data.author,
-                completed = data.completed
+    fun updateCourse(@PathVariable id: Long, @RequestBody courseDTO: CourseDTO): ResponseEntity<CourseModel> {
+        val courseModel = courseService.fetchOne(id)
+        return courseModel.map {
+            val updatedCourse: CourseModel = it.copy(
+                id = id,
+                title = courseDTO.title,
+                description = courseDTO.description,
+                author = courseDTO.author,
+                completed = courseDTO.completed
             )
-            ResponseEntity.ok().body(courseService.saveAndUpdate(updatedCourse))
+            ResponseEntity.ok().body(courseService.update(updatedCourse))
         }.orElse(ResponseEntity.notFound().build())
     }
 
