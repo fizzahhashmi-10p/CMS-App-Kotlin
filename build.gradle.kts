@@ -6,6 +6,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
 	id("org.springframework.boot") version "3.2.4"
 	id("io.spring.dependency-management") version "1.1.4"
+	id("org.liquibase.gradle") version "2.2.0"
 	kotlin("jvm") version "1.9.23"
 	kotlin("plugin.spring") version "1.9.23"
 	kotlin("plugin.jpa") version "1.9.23"
@@ -28,6 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.liquibase:liquibase-core")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -45,3 +47,15 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 	systemProperty("spring.config.location", "classpath:application-test.properties")
 }
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+	classpath("com.augusttechgroup:gradle-liquibase-plugin:0.6.1")
+	}
+
+}
+
+apply(plugin= "org.liquibase.gradle")
