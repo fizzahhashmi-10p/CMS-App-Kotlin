@@ -1,7 +1,9 @@
 package com.demo.controller
 
-import com.demo.entity.Course
+import com.demo.dto.CourseDTO
+import com.demo.model.CourseModel
 import com.demo.service.CourseService
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -14,12 +16,37 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.util.*
 
+import com.google.gson.Gson
+
+
 @WebMvcTest(CourseController::class)
 class CourseControllerTest {
 
-    val request = "{\"title\": \"Test Course\",\"description\": \"Test course Description\",\"author\": \"Test Teacher\"}"
-    val response = "{\"id\":10, \"title\": \"Test Course\",\"description\": \"Test course Description\",\"author\": \"Test Teacher\"}"
+    companion object{
+        lateinit var request: String
+        lateinit var response: String
+        lateinit var courseDTO: CourseDTO
+        lateinit var courseModel: CourseModel
 
+        @BeforeAll
+        @JvmStatic
+        fun setup(){
+            val gson = Gson()
+
+            val id:Long = 10
+            val title = "Test Course"
+            val description = "Test course Description"
+            val author = "Test Teacher"
+            val completed = true
+
+            courseDTO = CourseDTO(title = title, description =  description, author = author, completed = completed)
+            courseModel = CourseModel( id = id, title = title, description =  description, author = author, completed = completed)
+
+            request = gson.toJson(courseDTO)
+            response = gson.toJson(courseModel)
+        }
+
+    }
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -29,10 +56,7 @@ class CourseControllerTest {
 
     @Test
     fun testCreateCourse() {
-        val course = Course(title = "Test Course", description =  "Test course Description", author = "Test Teacher")
-        val courseCreated = course.copy(id = 10)
-
-        `when`(courseService.saveAndUpdate(course)).thenReturn(courseCreated)
+        `when`(courseService.save(courseDTO)).thenReturn(courseModel)
         mockMvc.perform(post("/course")
             .contentType(MediaType.APPLICATION_JSON)
             .content(request))
@@ -41,9 +65,7 @@ class CourseControllerTest {
 
     @Test
     fun testGetCourseById() {
-        val course = Course(id = 10, title = "Test Course", description =  "Test course Description", author = "Test Teacher")
-
-        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(course))
+        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(courseModel))
         mockMvc.perform(get("/course/10")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
@@ -52,11 +74,10 @@ class CourseControllerTest {
 
     @Test
     fun testUpdateCourse() {
-        val course = Course(id = 10, title = "Test Course", description =  "Test course Description", author = "Test Teacher")
-        val courseUpdated = course.copy(title = "Updated Title")
+        val courseUpdated = courseModel.copy(title = "Updated Title")
 
-        `when`(courseService.saveAndUpdate(course)).thenReturn(courseUpdated)
-        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(course))
+        `when`(courseService.update(courseModel)).thenReturn(courseUpdated)
+        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(courseModel))
 
         mockMvc.perform(put("/course/10")
             .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +87,7 @@ class CourseControllerTest {
     }
 
     @Test
-    fun `testDelete`() {
+    fun testDelete() {
         `when`(courseService.foundOne(10)).thenReturn(true)
         Mockito.doNothing().`when`(courseService).delete(10)
 
@@ -74,6 +95,4 @@ class CourseControllerTest {
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
     }
-
-
 }
