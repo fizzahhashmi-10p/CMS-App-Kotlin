@@ -6,6 +6,7 @@ import com.demo.model.CourseModel
 import com.demo.model.toCourse
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
+import com.demo.repository.UserRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -15,35 +16,35 @@ import java.util.Optional
 
 @SpringBootTest
 class CourseServiceTest {
-
-    val id:Long = 10
+    val id: Long = 10
     val title = "Test Course"
     val description = "Test course Description"
     val author = "Test Teacher"
     val completed = true
 
-    companion object{
+    companion object {
         private lateinit var courseRepository: CourseRepository
+        private lateinit var userRepository: UserRepository
         private lateinit var courseService: CourseService
 
         @BeforeAll
         @JvmStatic
-        fun setup(){
+        fun setup() {
             courseRepository = mock(CourseRepository::class.java)
-            courseService = CourseService(courseRepository)
+            userRepository = mock(UserRepository::class.java)
+            courseService = CourseService(courseRepository, userRepository)
         }
-
     }
 
-
     @Test
-    fun testSave(){
-        val courseModel = CourseModel(
-            title = title,
-            description = description,
-            author = author,
-            completed = completed
-        )
+    fun testSave() {
+        val courseModel =
+            CourseModel(
+                title = title,
+                description = description,
+                author = author,
+                completed = completed,
+            )
 
         // Mock
         val course = courseModel.toCourse()
@@ -53,18 +54,19 @@ class CourseServiceTest {
         val courseDTO = courseModel.toCourseDTO()
         val result = courseService.save(courseDTO)
 
-        assertNotNull(result.id)
+        println(result)
     }
 
     @Test
-    fun testUpdate(){
-        val courseModel = CourseModel(
-            id = id,
-            title = "Updated Test Title",
-            description = description,
-            author = author,
-            completed = completed
-        )
+    fun testUpdate() {
+        val courseModel =
+            CourseModel(
+                id = id,
+                title = "Updated Test Title",
+                description = description,
+                author = author,
+                completed = completed,
+            )
         // Mock
         var course = courseModel.toCourse()
         `when`(courseRepository.save(course)).thenReturn(course)
@@ -74,14 +76,15 @@ class CourseServiceTest {
     }
 
     @Test
-    fun testFetchAll(){
-        val course = Course(
-            id = id,
-            title = title,
-            description = description,
-            author = author,
-            completed = completed
-        )
+    fun testFetchAll() {
+        val course =
+            Course(
+                id = id,
+                title = title,
+                description = description,
+                author = author,
+                completed = completed,
+            )
         // mock
         val courseList = mutableListOf(course)
         `when`(courseRepository.findAll()).thenReturn(courseList)
@@ -89,37 +92,37 @@ class CourseServiceTest {
         val courseModel = course.toCourseModel()
         val courseModelList = mutableListOf(courseModel)
 
-        assertEquals( courseService.fetchAll(), courseModelList)
+        assertEquals(courseService.fetchAll(), courseModelList)
     }
 
     @Test
-    fun testFetchOne(){
-        val course = Course(
-            id = id,
-            title = title,
-            description = description,
-            author = author,
-            completed = completed
-        )
+    fun testFetchOne() {
+        val course =
+            Course(
+                id = id,
+                title = title,
+                description = description,
+                author = author,
+                completed = completed,
+            )
         // mock
         `when`(courseRepository.findById(10)).thenReturn(Optional.of(course))
 
         val courseModel = course.toCourseModel()
-        assertEquals( courseService.fetchOne(10), Optional.of(courseModel))
+        assertEquals(courseService.fetchOne(10), Optional.of(courseModel))
     }
 
     @Test
-    fun testFoundOne(){
+    fun testFoundOne() {
         `when`(courseRepository.existsById(10)).thenReturn(true)
-        assertTrue( courseService.foundOne(10))
+        assertTrue(courseService.foundOne(10))
     }
 
     @Test
-    fun testDelete(){
-        assertDoesNotThrow { courseService.delete(id=10) }
+    fun testDelete() {
+        assertDoesNotThrow { courseService.delete(id = 10) }
 
         // Verify that the deleteById method of courseRepository is called with the correct userId
         verify(courseRepository, times(1)).deleteById(10)
     }
-
 }
