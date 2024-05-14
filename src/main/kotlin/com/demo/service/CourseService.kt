@@ -15,13 +15,10 @@ import java.util.Optional
 public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository) {
     fun save(course: CourseDTO): CourseModel? {
         val user: User? = userRepository.findByUsername(course.author)
-        if (user != null) {
+        return user?.let {
             val courseEntity = Course(null, course.title, course.description, course.author, course.completed)
-            println(courseEntity)
             val savedCourseEntity = courseRepository.save(courseEntity)
-            return savedCourseEntity.toCourseModel()
-        } else {
-            return null
+            savedCourseEntity.toCourseModel()
         }
     }
 

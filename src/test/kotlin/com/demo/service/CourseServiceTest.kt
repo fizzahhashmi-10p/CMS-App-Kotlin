@@ -55,12 +55,14 @@ class CourseServiceTest {
         // Mock
         val course = courseModel.toCourse()
         val savedCourse = course.copy(id = 10)
+
         `when`(courseRepository.save(course)).thenReturn(savedCourse)
+        `when`(userRepository.findByUsername(course.author)).thenReturn(User(1, "testAuthor", "test@gmail.com"))
 
         val courseDTO = courseModel.toCourseDTO()
         val result = courseService.save(courseDTO)
 
-        println(result)
+        assertEquals(result, savedCourse.toCourseModel())
     }
 
     @Test
