@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
-
 package com.demo.service
 
 import com.demo.dto.CourseDTO
@@ -10,7 +8,7 @@ import com.demo.model.CourseModel
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.Optional
 
 @Service
 public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository) {

@@ -1,18 +1,20 @@
 package com.demo.entity
 
 import com.demo.model.CourseModel
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class CourseTest {
     @Test
-    fun testCourse(){
-        val course = Course(
-            title = "Test Course Object",
-            description = "Test course object description",
-            author = "Test Author",
-            completed = true
-        )
+    fun testCourse()  {
+        val course =
+            Course(
+                title = "Test Course Object",
+                description = "Test course object description",
+                author = "Test Author",
+                completed = true,
+            )
 
         // Test Case: Course Successful Creation
         assertTrue(course is Course)
@@ -22,5 +24,4 @@ class CourseTest {
         val courseModel = course.toCourseModel()
         assertTrue(courseModel is CourseModel)
     }
-
 }

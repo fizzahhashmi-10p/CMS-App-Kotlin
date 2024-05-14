@@ -7,10 +7,15 @@ import com.demo.model.toCourse
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.Optional
 
@@ -68,7 +73,7 @@ class CourseServiceTest {
                 completed = completed,
             )
         // Mock
-        var course = courseModel.toCourse()
+        val course = courseModel.toCourse()
         `when`(courseRepository.save(course)).thenReturn(course)
 
         val result = courseService.update(courseModel)
