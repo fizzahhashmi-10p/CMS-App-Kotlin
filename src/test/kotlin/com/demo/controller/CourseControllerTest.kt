@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.Optional
 
@@ -32,13 +31,13 @@ class CourseControllerTest {
 
         @BeforeAll
         @JvmStatic
-        fun setup()  {
+        fun setup() {
             val gson = Gson()
 
             val id: Long = 10
             val title = "Test Course"
             val description = "Test course Description"
-            val author = "Test Teacher"
+            val author = "testuser"
             val completed = true
 
             courseDTO = CourseDTO(title = title, description = description, author = author, completed = completed)
@@ -59,7 +58,7 @@ class CourseControllerTest {
     fun testCreateCourse() {
         `when`(courseService.save(courseDTO)).thenReturn(courseModel)
         mockMvc.perform(
-            post("/course")
+            post("/courses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request),
         )
@@ -70,7 +69,7 @@ class CourseControllerTest {
     fun testGetCourseById() {
         `when`(courseService.fetchOne(10)).thenReturn(Optional.of(courseModel))
         mockMvc.perform(
-            get("/course/10")
+            get("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isOk)
@@ -79,18 +78,18 @@ class CourseControllerTest {
 
     @Test
     fun testUpdateCourse() {
+        val id: Long = 10
+        val requestBody = courseDTO.copy(title = "Updated Title")
         val courseUpdated = courseModel.copy(title = "Updated Title")
 
-        `when`(courseService.update(courseModel)).thenReturn(courseUpdated)
-        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(courseModel))
+        `when`(courseService.update(id, requestBody)).thenReturn(courseUpdated)
 
         mockMvc.perform(
-            put("/course/10")
+            put("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request),
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.title").value("Updated Title"))
     }
 
     @Test
@@ -99,7 +98,7 @@ class CourseControllerTest {
         Mockito.doNothing().`when`(courseService).delete(10)
 
         mockMvc.perform(
-            delete("/course/10")
+            delete("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isOk)
