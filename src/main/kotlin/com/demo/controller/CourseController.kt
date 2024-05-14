@@ -48,18 +48,7 @@ public class CourseController(private val courseService: CourseService) {
         @PathVariable id: Long,
         @RequestBody courseDTO: CourseDTO,
     ): ResponseEntity<CourseModel> {
-        val courseModel = courseService.fetchOne(id)
-        return courseModel.map {
-            val updatedCourse: CourseModel =
-                it.copy(
-                    id = id,
-                    title = courseDTO.title,
-                    description = courseDTO.description,
-                    author = courseDTO.author,
-                    completed = courseDTO.completed,
-                )
-            ResponseEntity.ok().body(courseService.update(updatedCourse))
-        }.orElse(ResponseEntity.notFound().build())
+        return ResponseEntity.ok().body(courseService.update(id, courseDTO))
     }
 
     @DeleteMapping("/{id}")

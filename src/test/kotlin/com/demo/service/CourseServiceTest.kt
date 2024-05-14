@@ -1,6 +1,7 @@
 package com.demo.service
 
 import com.demo.entity.Course
+import com.demo.entity.User
 import com.demo.entity.toCourseModel
 import com.demo.model.CourseModel
 import com.demo.model.toCourse
@@ -64,19 +65,29 @@ class CourseServiceTest {
 
     @Test
     fun testUpdate() {
+        val originalCourse =
+            Course(
+                id,
+                title,
+                description,
+                author,
+                completed,
+            )
+
         val courseModel =
             CourseModel(
                 id = id,
                 title = "Updated Test Title",
-                description = description,
-                author = author,
-                completed = completed,
+                description = "Updated test description",
+                author = "updatedAuthor",
+                completed = true,
             )
-        // Mock
-        val course = courseModel.toCourse()
-        `when`(courseRepository.save(course)).thenReturn(course)
 
-        val result = courseService.update(courseModel)
+        `when`(courseRepository.findById(id)).thenReturn(Optional.of(originalCourse))
+        `when`(courseRepository.save(courseModel.toCourse())).thenReturn(courseModel.toCourse())
+        `when`(userRepository.findByUsername(courseModel.author)).thenReturn(User(2, "updatedAuthor", "test@gmail.com"))
+
+        val result = courseService.update(id, courseModel.toCourseDTO())
         assertEquals(result, courseModel)
     }
 

@@ -11,9 +11,9 @@ public data class Course(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = 0,
     var title: String,
-    val description: String,
-    val author: String,
-    val completed: Boolean = false
+    var description: String,
+    var author: String,
+    var completed: Boolean = false,
 )
 
 fun Course.toCourseModel(): CourseModel {
@@ -22,6 +22,6 @@ fun Course.toCourseModel(): CourseModel {
         title = this.title,
         description = this.description,
         author = this.author,
-        completed = this.completed
+        completed = this.completed,
     )
 }

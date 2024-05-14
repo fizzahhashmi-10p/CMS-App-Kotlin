@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import org.springframework.test.context.jdbc.Sql
-
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class CourseRepositoryTest {
-
     @Autowired
     private lateinit var entityManager: TestEntityManager
 
@@ -22,7 +19,7 @@ class CourseRepositoryTest {
 
     @Test
     fun testSaveCourse() {
-        val course = Course(title = "Math", description = "Mathematics course", author ="testuser")
+        val course = Course(title = "Math", description = "Mathematics course", author = "testuser")
 
         val savedCourse = courseRepository.save(course)
 
@@ -34,7 +31,6 @@ class CourseRepositoryTest {
     }
 
     @Test
-    @Sql("/test-data.sql")
     fun testFindCourseByAuthor() {
         val authorName = "Math Teacher"
         val foundCourses = courseRepository.findByAuthor(authorName)

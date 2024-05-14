@@ -7,6 +7,7 @@ import com.demo.entity.toCourseModel
 import com.demo.model.CourseModel
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
 import java.util.Optional
 
@@ -24,10 +25,22 @@ public class CourseService(private val courseRepository: CourseRepository, priva
         }
     }
 
-    fun update(course: CourseModel): CourseModel {
-        val courseEntity = Course(id = course.id, course.title, course.description, course.author, course.completed)
-        val savedCourseEntity = courseRepository.save(courseEntity)
-        return savedCourseEntity.toCourseModel()
+    fun update(
+        id: Long,
+        courseDTO: CourseDTO,
+    ): CourseModel {
+        var course =
+            courseRepository.findById(id)
+                .orElseThrow { EntityNotFoundException("Course not found") }
+
+        course.title = courseDTO.title
+        course.description = courseDTO.description
+        course.completed = courseDTO.completed
+
+        val user: User? = userRepository.findByUsername(courseDTO.author)
+        course.author = user?.username ?: course.author
+
+        return courseRepository.save(course).toCourseModel()
     }
 
     fun fetchAll(): List<CourseModel> {
