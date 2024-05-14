@@ -22,12 +22,7 @@ public class CourseController(private val courseService: CourseService) {
     fun createCourse(
         @RequestBody course: CourseDTO,
     ): ResponseEntity<Any> {
-        val savedCourse: CourseModel? = courseService.save(course)
-        return if (savedCourse != null) {
-            ResponseEntity(savedCourse, HttpStatus.CREATED)
-        } else {
-            ResponseEntity.badRequest().body("Invalid Author Provided")
-        }
+        return ResponseEntity(courseService.save(course), HttpStatus.CREATED)
     }
 
     @GetMapping
@@ -39,8 +34,7 @@ public class CourseController(private val courseService: CourseService) {
     fun getCourseById(
         @PathVariable id: Long,
     ): ResponseEntity<CourseModel> {
-        val course = courseService.fetchOne(id)
-        return course.map { ResponseEntity.ok(it) }.orElse(ResponseEntity.notFound().build())
+        return ResponseEntity.ok(courseService.fetchOne(id))
     }
 
     @PutMapping("/{id}")
@@ -54,13 +48,8 @@ public class CourseController(private val courseService: CourseService) {
     @DeleteMapping("/{id}")
     fun deleteCourse(
         @PathVariable id: Long,
-    ): ResponseEntity<Void> {
-        return if (courseService.foundOne(id)) {
-            courseService.delete(id)
-            ResponseEntity.ok().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
+    ) {
+        courseService.delete(id)
     }
 
     @GetMapping("/search")

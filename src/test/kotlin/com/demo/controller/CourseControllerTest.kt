@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.Optional
 
 @WebMvcTest(CourseController::class)
 class CourseControllerTest {
@@ -67,7 +66,7 @@ class CourseControllerTest {
 
     @Test
     fun testGetCourseById() {
-        `when`(courseService.fetchOne(10)).thenReturn(Optional.of(courseModel))
+        `when`(courseService.fetchOne(10)).thenReturn(courseModel)
         mockMvc.perform(
             get("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON),

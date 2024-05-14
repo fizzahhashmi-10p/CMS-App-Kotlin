@@ -127,7 +127,7 @@ class CourseServiceTest {
         `when`(courseRepository.findById(10)).thenReturn(Optional.of(course))
 
         val courseModel = course.toCourseModel()
-        assertEquals(courseService.fetchOne(10), Optional.of(courseModel))
+        assertEquals(courseService.fetchOne(10), courseModel)
     }
 
     @Test
