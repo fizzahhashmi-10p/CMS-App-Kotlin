@@ -1,8 +1,9 @@
 package com.demo.dto
 
-data class CourseDTO (
+data class CourseDTO(
+    val id: Long?,
     val title: String,
     val description: String,
-    val author: String,
-    val completed: Boolean
+    val authors: List<String>,
+    val completed: Boolean,
 )

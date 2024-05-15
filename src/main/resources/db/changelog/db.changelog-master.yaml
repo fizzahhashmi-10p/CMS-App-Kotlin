@@ -1,3 +1,26 @@
 databaseChangeLog:
-  - includeAll:
-      path: db/changelog/changes/
+#  - includeAll:
+#      path: db/changelog/changes/
+  - changeSet:
+      id: 1
+      author: "Fizzah"
+      changes:
+        - sqlFile:
+            path: changes/001_create_course_table.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 2
+      author: "Fizzah"
+      changes:
+        - sqlFile:
+            path: changes/002_create_user_table.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 3
+      author: "Fizzah"
+      changes:
+        - sqlFile:
+            path: changes/003_create_course_author_relation.sql
+            relativeToChangelogFile: true

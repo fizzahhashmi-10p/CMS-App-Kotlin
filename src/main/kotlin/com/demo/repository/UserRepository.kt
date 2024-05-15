@@ -10,4 +10,6 @@ public interface UserRepository : JpaRepository<User, Long> {
     fun findByUsername(
         @Param("username") username: String,
     ): User?
+
+    fun findAllByUsernameIn(usernames: List<String>): MutableList<User>
 }

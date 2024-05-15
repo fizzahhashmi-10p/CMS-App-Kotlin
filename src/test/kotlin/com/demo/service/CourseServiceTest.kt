@@ -8,6 +8,7 @@ import com.demo.model.toCourse
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
+import com.demo.util.Role
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -57,7 +58,7 @@ class CourseServiceTest {
         val savedCourse = course.copy(id = 10)
 
         `when`(courseRepository.save(course)).thenReturn(savedCourse)
-        `when`(userRepository.findByUsername(course.author)).thenReturn(User(1, "testAuthor", "test@gmail.com"))
+        `when`(userRepository.findByUsername(course.author)).thenReturn(User(1, "testAuthor", "test@gmail.com", Role.USER))
 
         val courseDTO = courseModel.toCourseDTO()
         val result = courseService.save(courseDTO)

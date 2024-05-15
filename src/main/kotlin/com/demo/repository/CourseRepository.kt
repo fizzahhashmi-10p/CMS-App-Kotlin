@@ -6,9 +6,14 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 public interface CourseRepository : JpaRepository<Course, Long> {
-    fun findByAuthor(author: String): List<Course>
-
-    @Query(value = "SELECT * FROM public.course WHERE author = (SELECT username FROM public.user WHERE email = :email)", nativeQuery = true)
+    @Query(
+        value =
+            "SELECT c.* FROM courses c " +
+                "JOIN course_author ca ON (ca.course_id = c.id) " +
+                "JOIN users u ON (u.id = ca.user_id) " +
+                "WHERE u.email = ?1",
+        nativeQuery = true,
+    )
     fun searchByAuthorMail(
         @Param("email") email: String,
     ): List<Course>

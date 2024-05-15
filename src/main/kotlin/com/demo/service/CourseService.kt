@@ -6,7 +6,7 @@ import com.demo.entity.User
 import com.demo.entity.toCourseModel
 import com.demo.exception.ResourceNotFoundException
 import com.demo.exception.ValidationException
-import com.demo.model.CourseModel
+import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -14,19 +14,24 @@ import kotlin.jvm.optionals.getOrElse
 
 @Service
 public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository) {
-    fun save(course: CourseDTO): CourseModel? {
-        val user: User? = userRepository.findByUsername(course.author)
-        return user?.let {
-            val courseEntity = Course(null, course.title, course.description, course.author, course.completed)
-            val savedCourseEntity = courseRepository.save(courseEntity)
-            savedCourseEntity.toCourseModel()
-        } ?: throw(ValidationException("Invalid Author name provided"))
+    fun save(course: CourseDTO): CourseDTO? {
+        // val user: User? = userRepository.findByUsername(course.author)
+        val authors: MutableList<User> = userRepository.findAllByUsernameIn(course.authors)
+        return when {
+            (authors.size == course.authors.size) -> {
+                val courseEntity = Course(null, course.title, course.description, course.completed, authors)
+                val savedCourseEntity = courseRepository.save(courseEntity)
+                val courseModel = savedCourseEntity.toCourseModel()
+                courseModel.toCourseDTO()
+            }
+            else -> throw(ValidationException("Invalid Author name provided"))
+        }
     }
 
     fun update(
         id: Long,
         courseDTO: CourseDTO,
-    ): CourseModel {
+    ): CourseDTO {
         var course =
             courseRepository.findById(id)
                 .orElseThrow { ResourceNotFoundException("Course not found") }
@@ -34,21 +39,26 @@ public class CourseService(private val courseRepository: CourseRepository, priva
         course.title = courseDTO.title
         course.description = courseDTO.description
         course.completed = courseDTO.completed
+        val authors = userRepository.findAllByUsernameIn(courseDTO.authors)
+        val courseAuthors =
+            when {
+                (authors.size == course.authors.size) -> authors
+                else -> throw (ValidationException("Invalid author provided."))
+            }
+        course.authors = courseAuthors
+        val updatedCourseModel = courseRepository.save(course).toCourseModel()
 
-        val user = userRepository.findByUsername(courseDTO.author) ?: throw (ValidationException("Invalid author provided."))
-        course.author = user.username
-
-        return courseRepository.save(course).toCourseModel()
+        return updatedCourseModel.toCourseDTO()
     }
 
-    fun fetchAll(): List<CourseModel> {
+    fun fetchAll(): List<CourseDTO> {
         val listCourseEntities = courseRepository.findAll()
-        return listCourseEntities.map { course -> course.toCourseModel() }
+        return listCourseEntities.map { course -> (course.toCourseModel()).toCourseDTO() }
     }
 
-    fun fetchOne(id: Long): CourseModel {
+    fun fetchOne(id: Long): CourseDTO {
         return courseRepository.findById(id).map {
-            it.toCourseModel()
+            (it.toCourseModel()).toCourseDTO()
         }.getOrElse { throw ResourceNotFoundException("Course with id: $id does not exist.") }
     }
 
@@ -64,8 +74,8 @@ public class CourseService(private val courseRepository: CourseRepository, priva
         }
     }
 
-    fun searchByAuthorMail(email: String): List<CourseModel>? {
+    fun searchByAuthorMail(email: String): List<CourseDTO>? {
         val listCourseEntities = courseRepository.searchByAuthorMail(email)
-        return listCourseEntities.map { course -> course.toCourseModel() }
+        return listCourseEntities.map { course -> (course.toCourseModel()).toCourseDTO() }
     }
 }

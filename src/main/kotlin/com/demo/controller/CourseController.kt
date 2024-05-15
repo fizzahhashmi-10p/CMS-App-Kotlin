@@ -1,7 +1,6 @@
 package com.demo.controller
 
 import com.demo.dto.CourseDTO
-import com.demo.model.CourseModel
 import com.demo.service.CourseService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -26,14 +25,14 @@ public class CourseController(private val courseService: CourseService) {
     }
 
     @GetMapping
-    fun getAllCourses(): List<CourseModel> {
+    fun getAllCourses(): List<CourseDTO> {
         return courseService.fetchAll()
     }
 
     @GetMapping("/{id}")
     fun getCourseById(
         @PathVariable id: Long,
-    ): ResponseEntity<CourseModel> {
+    ): ResponseEntity<CourseDTO> {
         return ResponseEntity.ok(courseService.fetchOne(id))
     }
 
@@ -41,7 +40,7 @@ public class CourseController(private val courseService: CourseService) {
     fun updateCourse(
         @PathVariable id: Long,
         @RequestBody courseDTO: CourseDTO,
-    ): ResponseEntity<CourseModel> {
+    ): ResponseEntity<CourseDTO> {
         return ResponseEntity.ok().body(courseService.update(id, courseDTO))
     }
 
@@ -55,7 +54,7 @@ public class CourseController(private val courseService: CourseService) {
     @GetMapping("/search")
     fun searchCourses(
         @RequestParam email: String,
-    ): ResponseEntity<List<CourseModel>> {
+    ): ResponseEntity<List<CourseDTO>> {
         val courses = courseService.searchByAuthorMail(email)
         return ResponseEntity.ok(courses)
     }

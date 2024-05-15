@@ -3,4 +3,4 @@ INSERT INTO course (title, description, author, completed) VALUES
 ('Science', 'Science course', 'Science Teacher', false),
 ('History', 'History course', 'History Teacher',true);
 
-INSERT INTO public.user(id, username, email) VALUES (1, 'testuser', 'testuser@gmail.com');
+INSERT INTO public.user(id, username, email) VALUES (1, 'testuser', 'testuser@gmail.com', 'USER');
