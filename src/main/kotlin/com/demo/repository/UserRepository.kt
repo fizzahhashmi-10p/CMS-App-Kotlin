@@ -12,4 +12,6 @@ public interface UserRepository : JpaRepository<User, Long> {
     ): User?
 
     fun findAllByUsernameIn(usernames: List<String>): MutableList<User>
+
+    fun findByEmail(email: String): User?
 }

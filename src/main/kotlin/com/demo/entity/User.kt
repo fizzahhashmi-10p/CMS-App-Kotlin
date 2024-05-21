@@ -22,6 +22,7 @@ data class User(
     val role: Role = Role.USER,
     @ManyToMany(mappedBy = "authors")
     val courses: MutableList<Course> = mutableListOf(),
+    val password: String?,
 )
 
 fun User.toUserModel(): UserModel {
@@ -30,5 +31,6 @@ fun User.toUserModel(): UserModel {
         username = this.username,
         email = this.email,
         role = this.role,
+        password = this.password,
     )
 }

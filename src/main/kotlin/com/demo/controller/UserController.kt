@@ -1,7 +1,6 @@
 package com.demo.controller
 
 import com.demo.dto.UserDTO
-import com.demo.model.UserModel
 import com.demo.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,11 +17,12 @@ public class UserController(private val userService: UserService) {
     fun createUser(
         @RequestBody user: UserDTO,
     ): ResponseEntity<Any> {
-        return ResponseEntity(userService.save(user), HttpStatus.CREATED)
+        val user = userService.save(user)
+        return ResponseEntity("User ${user?.username} is successfully created.", HttpStatus.CREATED)
     }
 
     @GetMapping
-    fun getAllUsers(): List<UserModel> {
+    fun getAllUsers(): List<UserDTO> {
         return userService.fetchAll()
     }
 }
