@@ -29,10 +29,10 @@ public data class Course(
 
 fun Course.toCourseModel(): CourseModel {
     return CourseModel(
-        id = this.id,
-        title = this.title,
-        description = this.description,
-        authors = this.authors,
-        completed = this.completed,
+        id = id,
+        title = title,
+        description = description,
+        authors = authors,
+        completed = completed,
     )
 }

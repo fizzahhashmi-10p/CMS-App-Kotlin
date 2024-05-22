@@ -1,147 +1,97 @@
 package com.demo.service
 
-import com.demo.entity.Course
 import com.demo.entity.User
-import com.demo.entity.toCourseModel
 import com.demo.model.CourseModel
 import com.demo.model.toCourse
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
-import com.demo.util.Role
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.Optional
 
 @SpringBootTest
 class CourseServiceTest {
-    val id: Long = 10
-    val title = "Test Course"
-    val description = "Test course Description"
-    val author = "Test Teacher"
-    val completed = true
+    final val id: Long = 10
+    private final val author: User = entityManager.find(User::class.java, 1)
 
-    companion object {
-        private lateinit var courseRepository: CourseRepository
-        private lateinit var userRepository: UserRepository
-        private lateinit var courseService: CourseService
+    private final val courseRepository: CourseRepository = mock(CourseRepository::class.java)
+    private final val userRepository: UserRepository = mock(UserRepository::class.java)
+    val courseService: CourseService = CourseService(courseRepository, userRepository)
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            courseRepository = mock(CourseRepository::class.java)
-            userRepository = mock(UserRepository::class.java)
-            courseService = CourseService(courseRepository, userRepository)
-        }
-    }
+    @Autowired
+    private lateinit var entityManager: TestEntityManager
+
+    private final val courseModel =
+        CourseModel(
+            10,
+            "Test Course",
+            "Test course Description",
+            true,
+            mutableListOf(author),
+        )
+
+    val course = courseModel.toCourse()
+    val courseDTO = courseModel.toCourseDTO()
 
     @Test
     fun testSave() {
-        val courseModel =
-            CourseModel(
-                title = title,
-                description = description,
-                author = author,
-                completed = completed,
-            )
-
         // Mock
-        val course = courseModel.toCourse()
-        val savedCourse = course.copy(id = 10)
 
-        `when`(courseRepository.save(course)).thenReturn(savedCourse)
-        `when`(userRepository.findByUsername(course.author)).thenReturn(User(1, "testAuthor", "test@gmail.com", Role.USER))
+        `when`(courseRepository.save(course)).thenReturn(course)
+        `when`(userRepository.findAllByUsernameIn(listOf(author.username))).thenReturn(mutableListOf(author))
 
-        val courseDTO = courseModel.toCourseDTO()
-        val result = courseService.save(courseDTO)
-
-        assertEquals(result, savedCourse.toCourseModel())
+        assertEquals(courseService.save(courseDTO), courseModel)
     }
 
     @Test
     fun testUpdate() {
-        val originalCourse =
-            Course(
-                id,
-                title,
-                description,
-                author,
-                completed,
-            )
+        val updatedCourseModel =
+            courseModel.copy(title = "Updated test title")
 
-        val courseModel =
-            CourseModel(
-                id = id,
-                title = "Updated Test Title",
-                description = "Updated test description",
-                author = "updatedAuthor",
-                completed = true,
-            )
+        `when`(courseRepository.findById(id)).thenReturn(Optional.of(course))
+        `when`(courseRepository.save(updatedCourseModel.toCourse())).thenReturn(updatedCourseModel.toCourse())
+        `when`(userRepository.findAllByUsernameIn(listOf(author.username))).thenReturn(mutableListOf(author))
 
-        `when`(courseRepository.findById(id)).thenReturn(Optional.of(originalCourse))
-        `when`(courseRepository.save(courseModel.toCourse())).thenReturn(courseModel.toCourse())
-        `when`(userRepository.findByUsername(courseModel.author)).thenReturn(User(2, "updatedAuthor", "test@gmail.com"))
-
-        val result = courseService.update(id, courseModel.toCourseDTO())
-        assertEquals(result, courseModel)
+        assertEquals(courseService.update(id, courseModel.toCourseDTO()), updatedCourseModel)
     }
 
     @Test
     fun testFetchAll() {
-        val course =
-            Course(
-                id = id,
-                title = title,
-                description = description,
-                author = author,
-                completed = completed,
-            )
         // mock
-        val courseList = mutableListOf(course)
-        `when`(courseRepository.findAll()).thenReturn(courseList)
+        `when`(courseRepository.findAll()).thenReturn(mutableListOf(course))
 
-        val courseModel = course.toCourseModel()
-        val courseModelList = mutableListOf(courseModel)
-
-        assertEquals(courseService.fetchAll(), courseModelList)
+        assertEquals(courseService.fetchAll(), mutableListOf(courseModel))
     }
 
     @Test
     fun testFetchOne() {
-        val course =
-            Course(
-                id = id,
-                title = title,
-                description = description,
-                author = author,
-                completed = completed,
-            )
         // mock
-        `when`(courseRepository.findById(10)).thenReturn(Optional.of(course))
+        `when`(courseRepository.findById(id)).thenReturn(Optional.of(course))
 
-        val courseModel = course.toCourseModel()
-        assertEquals(courseService.fetchOne(10), courseModel)
+        assertEquals(courseService.fetchOne(id), courseModel)
     }
 
     @Test
     fun testFoundOne() {
-        `when`(courseRepository.existsById(10)).thenReturn(true)
-        assertTrue(courseService.foundOne(10))
+        `when`(courseRepository.existsById(id)).thenReturn(true)
+        assertTrue(courseService.foundOne(id))
     }
 
     @Test
     fun testDelete() {
-        assertDoesNotThrow { courseService.delete(id = 10) }
+        assertDoesNotThrow { courseService.delete(id) }
 
         // Verify that the deleteById method of courseRepository is called with the correct userId
-        verify(courseRepository, times(1)).deleteById(10)
+        verify(courseRepository, times(1)).deleteById(id)
     }
 }

@@ -14,20 +14,20 @@ data class CourseModel(
 
 fun CourseModel.toCourse(): Course {
     return Course(
-        id = this.id,
-        title = this.title,
-        description = this.description,
-        authors = this.authors,
-        completed = this.completed,
+        id = id,
+        title = title,
+        description = description,
+        authors = authors,
+        completed = completed,
     )
 }
 
 fun CourseModel.toCourseDTO(): CourseDTO {
     return CourseDTO(
-        id = this.id,
-        title = this.title,
-        description = this.description,
-        authors = getUsernames(this.authors),
-        completed = this.completed,
+        id = id,
+        title = title,
+        description = description,
+        authors = getUsernames(authors),
+        completed = completed,
     )
 }

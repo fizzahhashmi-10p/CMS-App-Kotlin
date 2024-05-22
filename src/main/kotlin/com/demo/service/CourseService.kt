@@ -15,14 +15,12 @@ import kotlin.jvm.optionals.getOrElse
 @Service
 public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository) {
     fun save(course: CourseDTO): CourseDTO? {
-        // val user: User? = userRepository.findByUsername(course.author)
         val authors: MutableList<User> = userRepository.findAllByUsernameIn(course.authors)
         return when {
             (authors.size == course.authors.size) -> {
-                val courseEntity = Course(null, course.title, course.description, course.completed, authors)
-                val savedCourseEntity = courseRepository.save(courseEntity)
-                val courseModel = savedCourseEntity.toCourseModel()
-                courseModel.toCourseDTO()
+                courseRepository.save(
+                    Course(null, course.title, course.description, course.completed, authors),
+                ).toCourseModel().toCourseDTO()
             }
             else -> throw(ValidationException("Invalid Author name provided"))
         }
@@ -36,19 +34,20 @@ public class CourseService(private val courseRepository: CourseRepository, priva
             courseRepository.findById(id)
                 .orElseThrow { ResourceNotFoundException("Course not found") }
 
-        course.title = courseDTO.title
-        course.description = courseDTO.description
-        course.completed = courseDTO.completed
-        val authors = userRepository.findAllByUsernameIn(courseDTO.authors)
-        val courseAuthors =
-            when {
-                (authors.size == course.authors.size) -> authors
-                else -> throw (ValidationException("Invalid author provided."))
-            }
-        course.authors = courseAuthors
-        val updatedCourseModel = courseRepository.save(course).toCourseModel()
+        var authors = userRepository.findAllByUsernameIn(courseDTO.authors)
 
-        return updatedCourseModel.toCourseDTO()
+        return courseRepository.save(
+            course.apply {
+                title = courseDTO.title
+                description = courseDTO.description
+                completed = courseDTO.completed
+                authors =
+                    when {
+                        (authors.size == course.authors.size) -> authors
+                        else -> throw (ValidationException("Invalid author provided."))
+                    }
+            },
+        ).toCourseModel().toCourseDTO()
     }
 
     fun fetchAll(): List<CourseDTO> {

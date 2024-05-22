@@ -9,17 +9,13 @@ public data class UserModel(
     val username: String,
     val email: String,
     val role: Role,
-    val password: String?,
+    val password: String,
 )
 
 fun getUsernames(users: MutableList<User>): List<String> {
-    val usernames = mutableListOf<String>()
-    for (user in users) {
-        usernames.add(user.username)
-    }
-    return usernames
+    return users.map { it.username }
 }
 
 fun UserModel.toUserDTO(): UserDTO {
-    return UserDTO(username, email, role.name, null)
+    return UserDTO(username, email, role, "")
 }

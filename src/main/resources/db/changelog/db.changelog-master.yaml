@@ -24,3 +24,11 @@ databaseChangeLog:
         - sqlFile:
             path: changes/003_create_course_author_relation.sql
             relativeToChangelogFile: true
+
+  - changeSet:
+      id: 4
+      author: "Fizzah"
+      changes:
+        - sqlFile:
+            path: changes/004_add_password_to_user_table.sql
+            relativeToChangelogFile: true

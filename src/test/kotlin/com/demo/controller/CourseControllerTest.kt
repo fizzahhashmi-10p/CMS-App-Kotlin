@@ -1,14 +1,16 @@
 package com.demo.controller
 
-import com.demo.dto.CourseDTO
+import com.demo.entity.User
 import com.demo.model.CourseModel
+import com.demo.model.toCourse
+import com.demo.model.toCourseDTO
 import com.demo.service.CourseService
 import com.google.gson.Gson
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
@@ -22,30 +24,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(CourseController::class)
 class CourseControllerTest {
-    companion object {
-        lateinit var request: String
-        lateinit var response: String
-        lateinit var courseDTO: CourseDTO
-        lateinit var courseModel: CourseModel
+    @Autowired
+    private lateinit var entityManager: TestEntityManager
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            val gson = Gson()
+    val id: Long = 10
+    private final val author: User = entityManager.find(User::class.java, 1)
+    private var courseModel =
+        CourseModel(id = id, title = "Test Course", description = "Test course Description", true, mutableListOf(author))
 
-            val id: Long = 10
-            val title = "Test Course"
-            val description = "Test course Description"
-            val author = "testuser"
-            val completed = true
+    val courseDTO = courseModel.toCourseDTO()
+    val course = courseModel.toCourse()
 
-            courseDTO = CourseDTO(title = title, description = description, author = author, completed = completed)
-            courseModel = CourseModel(id = id, title = title, description = description, author = author, completed = completed)
-
-            request = gson.toJson(courseDTO)
-            response = gson.toJson(courseModel)
-        }
-    }
+    val gson = Gson()
+    val request = gson.toJson(courseDTO)
+    val response = gson.toJson(courseModel)
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -55,7 +47,7 @@ class CourseControllerTest {
 
     @Test
     fun testCreateCourse() {
-        `when`(courseService.save(courseDTO)).thenReturn(courseModel)
+        `when`(courseService.save(courseDTO)).thenReturn(courseDTO)
         mockMvc.perform(
             post("/courses")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +58,7 @@ class CourseControllerTest {
 
     @Test
     fun testGetCourseById() {
-        `when`(courseService.fetchOne(10)).thenReturn(courseModel)
+        `when`(courseService.fetchOne(id)).thenReturn(courseDTO)
         mockMvc.perform(
             get("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON),
@@ -79,7 +71,7 @@ class CourseControllerTest {
     fun testUpdateCourse() {
         val id: Long = 10
         val requestBody = courseDTO.copy(title = "Updated Title")
-        val courseUpdated = courseModel.copy(title = "Updated Title")
+        val courseUpdated = courseDTO.copy(title = "Updated Title")
 
         `when`(courseService.update(id, requestBody)).thenReturn(courseUpdated)
 
@@ -93,11 +85,11 @@ class CourseControllerTest {
 
     @Test
     fun testDelete() {
-        `when`(courseService.foundOne(10)).thenReturn(true)
-        Mockito.doNothing().`when`(courseService).delete(10)
+        `when`(courseService.foundOne(id)).thenReturn(true)
+        Mockito.doNothing().`when`(courseService).delete(id)
 
         mockMvc.perform(
-            delete("/courses/10")
+            delete("/courses/$id")
                 .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isOk)

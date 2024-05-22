@@ -22,15 +22,15 @@ data class User(
     val role: Role = Role.USER,
     @ManyToMany(mappedBy = "authors")
     val courses: MutableList<Course> = mutableListOf(),
-    val password: String?,
+    val password: String,
 )
 
 fun User.toUserModel(): UserModel {
     return UserModel(
-        id = this.id,
-        username = this.username,
-        email = this.email,
-        role = this.role,
-        password = this.password,
+        id = id,
+        username = username,
+        email = email,
+        role = role,
+        password = password,
     )
 }
