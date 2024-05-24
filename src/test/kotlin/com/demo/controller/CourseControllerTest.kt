@@ -1,97 +1,130 @@
 package com.demo.controller
 
-import com.demo.entity.User
+import com.demo.generateTestToken
 import com.demo.model.CourseModel
-import com.demo.model.toCourse
 import com.demo.model.toCourseDTO
-import com.demo.service.CourseService
 import com.google.gson.Gson
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.jdbc.SqlGroup
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@WebMvcTest(CourseController::class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@SqlGroup(
+    Sql(scripts = ["/test-data.sql"], executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS),
+)
 class CourseControllerTest {
     @Autowired
-    private lateinit var entityManager: TestEntityManager
+    lateinit var mockMvc: MockMvc
+    val token = generateTestToken("testuser@gmail.com")
 
-    val id: Long = 10
-    private final val author: User = entityManager.find(User::class.java, 1)
-    private var courseModel =
-        CourseModel(id = id, title = "Test Course", description = "Test course Description", true, mutableListOf(author))
+    var courseModel = CourseModel(id = 10, title = "Test Course", description = "Test course Description", true, mutableListOf())
+    var courseDTO = courseModel.toCourseDTO()
 
-    val courseDTO = courseModel.toCourseDTO()
-    val course = courseModel.toCourse()
+    val request = Gson().toJson(courseDTO)
 
-    val gson = Gson()
-    val request = gson.toJson(courseDTO)
-    val response = gson.toJson(courseModel)
+    @Test
+    fun testGetCourseById() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/courses/10")
+                .header("Authorization", "Bearer $token"),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(10))
+    }
 
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    @Test
+    fun testGetCourseByIdWhenCourseDoesnotExist() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/courses/2")
+                .header("Authorization", "Bearer $token"),
+        )
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
 
-    @MockBean
-    private lateinit var courseService: CourseService
+    @Test
+    fun testGetCourseByIdWithoutAuthorization() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/courses/10"),
+        )
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+    }
 
     @Test
     fun testCreateCourse() {
-        `when`(courseService.save(courseDTO)).thenReturn(courseDTO)
+        mockMvc.perform(
+            post("/courses")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request),
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated)
+    }
+
+    @Test
+    fun testCreateCourseWithoutUserAuthorization() {
         mockMvc.perform(
             post("/courses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request),
         )
-            .andExpect(status().isCreated)
-    }
-
-    @Test
-    fun testGetCourseById() {
-        `when`(courseService.fetchOne(id)).thenReturn(courseDTO)
-        mockMvc.perform(
-            get("/courses/10")
-                .contentType(MediaType.APPLICATION_JSON),
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().json(response))
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     @Test
     fun testUpdateCourse() {
-        val id: Long = 10
-        val requestBody = courseDTO.copy(title = "Updated Title")
-        val courseUpdated = courseDTO.copy(title = "Updated Title")
+        courseDTO.apply {
+            authors = listOf("testuser")
+        }
 
-        `when`(courseService.update(id, requestBody)).thenReturn(courseUpdated)
+        mockMvc.perform(
+            put("/courses/10")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Gson().toJson(courseDTO)),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+    }
+
+    @Test
+    fun testUpdateCourseWithoutUserAuthorization() {
+        courseDTO.apply {
+            title = "Updated title"
+            authors = listOf("testuser")
+        }
 
         mockMvc.perform(
             put("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(request),
+                .content(Gson().toJson(courseDTO)),
         )
-            .andExpect(status().isOk)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
     }
 
     @Test
-    fun testDelete() {
-        `when`(courseService.foundOne(id)).thenReturn(true)
-        Mockito.doNothing().`when`(courseService).delete(id)
-
+    fun testDeleteWithoutUserAuthorization() {
         mockMvc.perform(
-            delete("/courses/$id")
+            delete("/courses/10")
                 .contentType(MediaType.APPLICATION_JSON),
         )
-            .andExpect(status().isOk)
+            .andExpect(MockMvcResultMatchers.status().isForbidden)
+    }
+
+    @Test
+    fun testDeleteold() {
+        mockMvc.perform(
+            delete("/courses/10")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
     }
 }

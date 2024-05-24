@@ -12,7 +12,7 @@ import java.util.Date
 class TokenService(
     jwtProperties: JwtProperties,
 ) {
-    private val secretKey =
+    val secretKey =
         Keys.hmacShaKeyFor(
             jwtProperties.key.toByteArray(),
         )
@@ -50,7 +50,7 @@ class TokenService(
             .expiration
             .before(Date(System.currentTimeMillis()))
 
-    private fun getAllClaims(token: String): Claims {
+    fun getAllClaims(token: String): Claims {
         val parser =
             Jwts.parser()
                 .verifyWith(secretKey)

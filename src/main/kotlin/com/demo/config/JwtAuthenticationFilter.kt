@@ -1,7 +1,7 @@
 package com.demo.config
 
-import com.demo.service.CustomUserDetailsService
 import com.demo.service.TokenService
+import com.demo.service.UserDetailsServiceImpl
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -14,10 +14,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val userDetailsService: CustomUserDetailsService,
+    private val userDetailsService: UserDetailsServiceImpl,
     private val tokenService: TokenService,
 ) : OncePerRequestFilter() {
-    override fun doFilterInternal(
+    public override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,

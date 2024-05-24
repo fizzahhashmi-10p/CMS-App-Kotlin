@@ -35,7 +35,6 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                 .orElseThrow { ResourceNotFoundException("Course not found") }
 
         var authors = userRepository.findAllByUsernameIn(courseDTO.authors)
-
         return courseRepository.save(
             course.apply {
                 title = courseDTO.title

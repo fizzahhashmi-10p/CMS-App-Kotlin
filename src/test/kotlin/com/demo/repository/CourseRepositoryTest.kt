@@ -2,39 +2,35 @@ package com.demo.repository
 
 import com.demo.entity.Course
 import com.demo.entity.User
+import com.demo.util.Role
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class CourseRepositoryTest {
-    var author = entityManager.find(User::class.java, 1)
-
-    @Autowired
-    private lateinit var entityManager: TestEntityManager
+    var author = User(10, "testuser", "testuser@gmail.com", Role.USER, mutableListOf(), "password")
 
     @Autowired
     private lateinit var courseRepository: CourseRepository
 
     @Test
     fun testSaveCourse() {
-        val course =
-            Course(
-                null,
-                "Math",
-                "Mathematics course",
-                true,
-                mutableListOf(author),
+        val savedCourse =
+            courseRepository.save(
+                Course(
+                    null,
+                    "Math",
+                    "Mathematics course",
+                    true,
+                    mutableListOf(author),
+                ),
             )
 
-        val savedCourse = courseRepository.save(course)
-
         assertNotNull(savedCourse.id)
-        assertNotNull(entityManager.find(Course::class.java, savedCourse.id))
     }
 
     @Test

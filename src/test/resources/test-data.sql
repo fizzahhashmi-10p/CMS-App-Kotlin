@@ -1,6 +1,6 @@
-INSERT INTO course (title, description, author, completed) VALUES
-('Math', 'Mathematics course', 'Math Teacher', true),
-('Science', 'Science course', 'Science Teacher', false),
-('History', 'History course', 'History Teacher',true);
+INSERT  INTO users(id, username, email, role, password) VALUES (10, 'testuser', 'testuser@gmail.com', 'USER', 'password'), (11, 'testadmin', 'testadmin@gmail.com', 'ADMIN', 'password');
 
-INSERT INTO public.user(id, username, email) VALUES (1, 'testuser', 'testuser@gmail.com', 'USER');
+INSERT INTO courses (id,title, description, completed) VALUES (10,'Math', 'Mathematics course', true);
+
+INSERT INTO course_author (user_id, course_id) VALUES (10,10);
+

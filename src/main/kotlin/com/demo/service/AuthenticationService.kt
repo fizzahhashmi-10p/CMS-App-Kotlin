@@ -12,7 +12,7 @@ import java.util.Date
 @Service
 class AuthenticationService(
     private val authManager: AuthenticationManager,
-    private val userDetailsService: CustomUserDetailsService,
+    private val userDetailsService: UserDetailsServiceImpl,
     private val tokenService: TokenService,
     private val jwtProperties: JwtProperties,
 ) {
@@ -33,11 +33,11 @@ class AuthenticationService(
         )
     }
 
-    private fun createAccessToken(user: UserDetails) =
+    fun createAccessToken(user: UserDetails) =
         tokenService.generate(
             userDetails = user,
             expirationDate = getAccessTokenExpiration(),
         )
 
-    private fun getAccessTokenExpiration(): Date = Date(System.currentTimeMillis() + jwtProperties.expiration)
+    fun getAccessTokenExpiration(): Date = Date(System.currentTimeMillis() + jwtProperties.expiration)
 }

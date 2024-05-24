@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 typealias ApplicationUser = com.demo.entity.User
 
 @Service
-class CustomUserDetailsService(
+class UserDetailsServiceImpl(
     private val userRepository: UserRepository,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
