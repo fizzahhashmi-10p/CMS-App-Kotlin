@@ -15,9 +15,10 @@ class KafkaController (private val kafkaProducer: KafkaProducer) {
         @RequestBody requestBody: RequestBodyDto
     ) {
         kafkaProducer.sendStringMessage(
+            topic = requestBody.topic,
             message = requestBody.message
         )
     }
 
-    data class RequestBodyDto(val message: String)
+    data class RequestBodyDto(val topic: String, val message: String)
 }

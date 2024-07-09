@@ -9,18 +9,23 @@ import com.demo.exception.ValidationException
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
+import com.demo.kafka.producer.KafkaProducer
+import com.demo.util.Constants
 import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrElse
 
+
 @Service
-public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository) {
+public class CourseService(private val courseRepository: CourseRepository, private val userRepository: UserRepository, private val kafkaProducer: KafkaProducer) {
     fun save(course: CourseDTO): CourseDTO? {
         val authors: MutableList<User> = userRepository.findAllByUsernameIn(course.authors)
         return when {
             (authors.size == course.authors.size) -> {
-                courseRepository.save(
+                val newCourse = courseRepository.save(
                     Course(null, course.title, course.description, course.completed, authors),
-                ).toCourseModel().toCourseDTO()
+                )
+                kafkaProducer.sendStringMessage(Constants.COURSE_ADDED_TOPIC,"${newCourse.title} is created.")
+                return newCourse.toCourseModel().toCourseDTO()
             }
             else -> throw(ValidationException("Invalid Author name provided"))
         }
@@ -35,7 +40,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                 .orElseThrow { ResourceNotFoundException("Course not found") }
 
         var authors = userRepository.findAllByUsernameIn(courseDTO.authors)
-        return courseRepository.save(
+        val updatedCourse = courseRepository.save(
             course.apply {
                 title = courseDTO.title
                 description = courseDTO.description
@@ -46,7 +51,9 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                         else -> throw (ValidationException("Invalid author provided."))
                     }
             },
-        ).toCourseModel().toCourseDTO()
+        )
+        kafkaProducer.sendStringMessage(Constants.COURSE_UPDATED_TOPIC,"Course id: ${id} is updated.")
+        return updatedCourse.toCourseModel().toCourseDTO()
     }
 
     fun fetchAll(): List<CourseDTO> {
@@ -67,6 +74,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
     fun delete(id: Long) {
         if (foundOne(id)) {
             courseRepository.deleteById(id)
+            kafkaProducer.sendStringMessage(Constants.COURSE_DELETED_TOPIC,"Course id: ${id} is delete.")
         } else {
             throw ValidationException("Course with id: $id not found.")
         }
