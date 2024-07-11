@@ -8,7 +8,7 @@ class KafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>
 ) {
 
-    fun sendStringMessage(topic: String, message: String) {
+    fun sendMessage(topic: String, message: String) {
         kafkaTemplate.send(topic, message)
     }
 

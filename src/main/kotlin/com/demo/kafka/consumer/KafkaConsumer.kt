@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 class KafkaConsumer {
     private val logger = LoggerFactory.getLogger(this.javaClass)
     @KafkaListener(topics = [COURSE_ADDED_TOPIC, COURSE_DELETED_TOPIC, COURSE_UPDATED_TOPIC], groupId = COURSE_GROUP_ID)
-    fun firstListener(message: String) {
+    fun CourseListener(message: String) {
         logger.info("Message received: [$message]")
     }
 

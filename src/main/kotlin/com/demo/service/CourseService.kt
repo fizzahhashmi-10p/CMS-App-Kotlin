@@ -24,7 +24,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                 val newCourse = courseRepository.save(
                     Course(null, course.title, course.description, course.completed, authors),
                 )
-                kafkaProducer.sendStringMessage(Constants.COURSE_ADDED_TOPIC,"${newCourse.title} is created.")
+                kafkaProducer.sendMessage(Constants.COURSE_ADDED_TOPIC,"${newCourse.title} is created.")
                 return newCourse.toCourseModel().toCourseDTO()
             }
             else -> throw(ValidationException("Invalid Author name provided"))
@@ -52,7 +52,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                     }
             },
         )
-        kafkaProducer.sendStringMessage(Constants.COURSE_UPDATED_TOPIC,"Course id: ${id} is updated.")
+        kafkaProducer.sendMessage(Constants.COURSE_UPDATED_TOPIC,"Course id: ${id} is updated.")
         return updatedCourse.toCourseModel().toCourseDTO()
     }
 
@@ -74,7 +74,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
     fun delete(id: Long) {
         if (foundOne(id)) {
             courseRepository.deleteById(id)
-            kafkaProducer.sendStringMessage(Constants.COURSE_DELETED_TOPIC,"Course id: ${id} is delete.")
+            kafkaProducer.sendMessage(Constants.COURSE_DELETED_TOPIC,"Course id: ${id} is delete.")
         } else {
             throw ValidationException("Course with id: $id not found.")
         }
