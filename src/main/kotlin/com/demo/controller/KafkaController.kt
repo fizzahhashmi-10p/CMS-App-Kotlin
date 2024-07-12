@@ -1,5 +1,6 @@
 package com.demo.controller
 
+import com.demo.dto.StringEventDTO
 import com.demo.kafka.producer.KafkaProducer
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,9 +15,9 @@ class KafkaController (private val kafkaProducer: KafkaProducer) {
     fun sendTestMessage(
         @RequestBody requestBody: RequestBodyDto
     ) {
-        kafkaProducer.sendStringMessage(
+        kafkaProducer.sendMessage(
             topic = requestBody.topic,
-            message = requestBody.message
+            StringEventDTO(requestBody.message)
         )
     }
 

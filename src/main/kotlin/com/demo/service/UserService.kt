@@ -1,5 +1,6 @@
 package com.demo.service
 
+import com.demo.dto.AuthorEventDTO
 import com.demo.dto.UserDTO
 import com.demo.entity.Course
 import com.demo.entity.User
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Service
 
 @Service
 public class UserService(private val userRepository: UserRepository, private val encoder: PasswordEncoder, private val kafkaProducer: KafkaProducer) {
-    fun save(user: UserDTO): UserModel? {
+    fun save(user: UserDTO): UserDTO {
         val newUser = (
                 userRepository.save(
                     User(null, user.username, user.email, user.role, mutableListOf<Course>(), encoder.encode(user.password)),
                 )
-                ).toUserModel()
-        kafkaProducer.sendMessage(Constants.USER_ADDED_TOPIC,"User: ${newUser.username} is added.")
+                ).toUserModel().toUserDTO()
+        kafkaProducer.sendMessage(Constants.USER_ADDED_TOPIC,AuthorEventDTO("User: ${newUser.username} is added.", newUser))
         return newUser
     }
 

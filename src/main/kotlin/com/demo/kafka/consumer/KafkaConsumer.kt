@@ -1,5 +1,6 @@
 package com.demo.kafka.consumer
 
+import com.demo.dto.KafkaMessageDTO
 import com.demo.util.Constants.COURSE_GROUP_ID
 import com.demo.util.Constants.COURSE_ADDED_TOPIC
 import com.demo.util.Constants.COURSE_DELETED_TOPIC
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Component
 class KafkaConsumer {
     private val logger = LoggerFactory.getLogger(this.javaClass)
     @KafkaListener(topics = [COURSE_ADDED_TOPIC, COURSE_DELETED_TOPIC, COURSE_UPDATED_TOPIC], groupId = COURSE_GROUP_ID)
-    fun CourseListener(message: String) {
+    fun CourseListener(message: KafkaMessageDTO) {
         logger.info("Course Notification Received: [$message]")
     }
 
     @KafkaListener(topics = [USER_ADDED_TOPIC], groupId = USER_GROUP_ID)
-    fun UserListener(message: String) {
+    fun UserListener(message: KafkaMessageDTO) {
         logger.info("User  Notification Received: [$message]")
     }
 }

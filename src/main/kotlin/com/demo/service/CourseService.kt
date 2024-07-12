@@ -1,6 +1,8 @@
 package com.demo.service
 
 import com.demo.dto.CourseDTO
+import com.demo.dto.CourseEventDTO
+import com.demo.dto.StringEventDTO
 import com.demo.entity.Course
 import com.demo.entity.User
 import com.demo.entity.toCourseModel
@@ -23,9 +25,9 @@ public class CourseService(private val courseRepository: CourseRepository, priva
             (authors.size == course.authors.size) -> {
                 val newCourse = courseRepository.save(
                     Course(null, course.title, course.description, course.completed, authors),
-                )
-                kafkaProducer.sendMessage(Constants.COURSE_ADDED_TOPIC,"${newCourse.title} is created.")
-                return newCourse.toCourseModel().toCourseDTO()
+                ).toCourseModel().toCourseDTO()
+                kafkaProducer.sendMessage(Constants.COURSE_ADDED_TOPIC,CourseEventDTO("New Topic Successfully Added", newCourse ))
+                return newCourse
             }
             else -> throw(ValidationException("Invalid Author name provided"))
         }
@@ -51,9 +53,9 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                         else -> throw (ValidationException("Invalid author provided."))
                     }
             },
-        )
-        kafkaProducer.sendMessage(Constants.COURSE_UPDATED_TOPIC,"Course id: ${id} is updated.")
-        return updatedCourse.toCourseModel().toCourseDTO()
+        ).toCourseModel().toCourseDTO()
+        kafkaProducer.sendMessage(Constants.COURSE_UPDATED_TOPIC,CourseEventDTO("Course: ${id} is updated successfully", updatedCourse))
+        return updatedCourse
     }
 
     fun fetchAll(): List<CourseDTO> {
@@ -74,7 +76,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
     fun delete(id: Long) {
         if (foundOne(id)) {
             courseRepository.deleteById(id)
-            kafkaProducer.sendMessage(Constants.COURSE_DELETED_TOPIC,"Course id: ${id} is delete.")
+            kafkaProducer.sendMessage(Constants.COURSE_DELETED_TOPIC,StringEventDTO("Course id: ${id} is delete."))
         } else {
             throw ValidationException("Course with id: $id not found.")
         }
