@@ -7,6 +7,7 @@ import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
 import com.demo.util.Role
+import com.demo.kafka.producer.KafkaProducer
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -25,7 +26,8 @@ class CourseServiceTest() {
 
     val courseRepository: CourseRepository = mock(CourseRepository::class.java)
     val userRepository: UserRepository = mock(UserRepository::class.java)
-    val courseService: CourseService = CourseService(courseRepository, userRepository)
+    val kafkaProducer: KafkaProducer = mock(KafkaProducer::class.java)
+    val courseService: CourseService = CourseService(courseRepository, userRepository, kafkaProducer )
 
     private final val courseModel =
         CourseModel(
