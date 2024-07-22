@@ -1,4 +1,3 @@
-version: '3.1'
 services:
   db:
     image: postgres
@@ -9,3 +8,14 @@ services:
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: demo_db
+  aws:
+    image: 'localstack/localstack:latest'
+    container_name: 'localstack'
+    environment:
+      - SERVICES=sqs
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    ports:
+      - '4566:4566'
