@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
+import jakarta.persistence.FetchType
 
 @Entity
 @Table(name = "courses")
@@ -18,7 +19,7 @@ public data class Course(
     var title: String,
     var description: String,
     var completed: Boolean = false,
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "course_author",
         joinColumns = [JoinColumn(name = "course_id")],

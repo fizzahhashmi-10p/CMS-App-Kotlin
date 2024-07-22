@@ -34,14 +34,17 @@ public class CourseService(private val courseRepository: CourseRepository, priva
     }
 
     fun update(
-        id: Long,
+        id: Long?,
         courseDTO: CourseDTO,
     ): CourseDTO {
+        if (id == null) {
+            throw ValidationException("Error: ID cannot be null")
+        }
         var course =
             courseRepository.findById(id)
                 .orElseThrow { ResourceNotFoundException("Course not found") }
 
-        var authors = userRepository.findAllByUsernameIn(courseDTO.authors)
+        var authorList = userRepository.findAllByUsernameIn(courseDTO.authors)
         val updatedCourse = courseRepository.save(
             course.apply {
                 title = courseDTO.title
@@ -49,7 +52,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
                 completed = courseDTO.completed
                 authors =
                     when {
-                        (authors.size == course.authors.size) -> authors
+                        (authorList.size == course.authors.size) -> authorList
                         else -> throw (ValidationException("Invalid author provided."))
                     }
             },
@@ -76,7 +79,7 @@ public class CourseService(private val courseRepository: CourseRepository, priva
     fun delete(id: Long) {
         if (foundOne(id)) {
             courseRepository.deleteById(id)
-            kafkaProducer.sendMessage(Constants.COURSE_DELETED_TOPIC,StringEventDTO("Course id: ${id} is delete."))
+            kafkaProducer.sendMessage(Constants.COURSE_DELETED_TOPIC,StringEventDTO("Course id: ${id} is deleted."))
         } else {
             throw ValidationException("Course with id: $id not found.")
         }

@@ -1,7 +1,10 @@
 package com.demo.controller
 
 import com.demo.dto.CourseDTO
+import com.demo.dto.CourseEventDTO
+import com.demo.dto.serializeCourseEvent
 import com.demo.service.CourseService
+import io.awspring.cloud.sqs.operations.SqsTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -16,12 +19,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/courses")
-public class CourseController(private val courseService: CourseService) {
+public class CourseController(private val courseService: CourseService, private val sqsTemplate: SqsTemplate) {
     @PostMapping
     fun createCourse(
         @RequestBody course: CourseDTO,
     ): ResponseEntity<Any> {
-        return ResponseEntity(courseService.save(course), HttpStatus.CREATED)
+        sqsTemplate.send("course-queue",  serializeCourseEvent(CourseEventDTO("create-course", course)))
+        return ResponseEntity("Course Successfully added!", HttpStatus.CREATED)
     }
 
     @GetMapping
@@ -40,8 +44,11 @@ public class CourseController(private val courseService: CourseService) {
     fun updateCourse(
         @PathVariable id: Long,
         @RequestBody courseDTO: CourseDTO,
-    ): ResponseEntity<CourseDTO> {
-        return ResponseEntity.ok().body(courseService.update(id, courseDTO))
+    ): ResponseEntity<Any> {
+        sqsTemplate.send("course-queue",
+            serializeCourseEvent(CourseEventDTO("update-course", courseDTO, id ))
+        )
+        return ResponseEntity.ok().body("Course Successfully Updated!")
     }
 
     @DeleteMapping("/{id}")
