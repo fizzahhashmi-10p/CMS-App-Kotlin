@@ -1,7 +1,7 @@
 package com.demo.controller
 
 import com.demo.dto.StringEventDTO
-import com.demo.kafka.producer.KafkaProducer
+import com.demo.service.KafkaProducer
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

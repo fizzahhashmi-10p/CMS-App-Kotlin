@@ -5,8 +5,6 @@ import com.demo.dto.UserDTO
 import com.demo.entity.Course
 import com.demo.entity.User
 import com.demo.entity.toUserModel
-import com.demo.kafka.producer.KafkaProducer
-import com.demo.model.UserModel
 import com.demo.model.toUserDTO
 import com.demo.repository.UserRepository
 import com.demo.util.Constants

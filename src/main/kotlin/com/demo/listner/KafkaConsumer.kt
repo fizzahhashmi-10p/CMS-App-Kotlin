@@ -1,4 +1,4 @@
-package com.demo.kafka.consumer
+package com.demo.listner
 
 import com.demo.dto.KafkaMessageDTO
 import com.demo.util.Constants.COURSE_GROUP_ID

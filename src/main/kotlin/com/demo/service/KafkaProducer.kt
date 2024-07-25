@@ -1,4 +1,4 @@
-package com.demo.kafka.producer
+package com.demo.service
 
 import com.demo.dto.KafkaMessageDTO
 import org.springframework.kafka.core.KafkaTemplate

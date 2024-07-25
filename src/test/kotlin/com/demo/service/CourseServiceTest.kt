@@ -7,7 +7,6 @@ import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
 import com.demo.util.Role
-import com.demo.kafka.producer.KafkaProducer
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

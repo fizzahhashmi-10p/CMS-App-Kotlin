@@ -11,7 +11,6 @@ import com.demo.exception.ValidationException
 import com.demo.model.toCourseDTO
 import com.demo.repository.CourseRepository
 import com.demo.repository.UserRepository
-import com.demo.kafka.producer.KafkaProducer
 import com.demo.util.Constants
 import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrElse
