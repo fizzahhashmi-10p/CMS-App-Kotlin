@@ -24,8 +24,7 @@ public class CourseController(private val courseService: CourseService, private 
     fun createCourse(
         @RequestBody course: CourseDTO,
     ): ResponseEntity<Any> {
-        sqsTemplate.send("course-queue",  serializeCourseEvent(CourseEventDTO("create-course", course)))
-        return ResponseEntity("Course Successfully added!", HttpStatus.CREATED)
+        return ResponseEntity("Request to add course is sent successfully", HttpStatus.CREATED)
     }
 
     @GetMapping
@@ -48,7 +47,7 @@ public class CourseController(private val courseService: CourseService, private 
         sqsTemplate.send("course-queue",
             serializeCourseEvent(CourseEventDTO("update-course", courseDTO, id ))
         )
-        return ResponseEntity.ok().body("Course Successfully Updated!")
+        return ResponseEntity.ok().body("Request to update course is sent successfully")
     }
 
     @DeleteMapping("/{id}")

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
+import jakarta.persistence.FetchType
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToMany
@@ -20,7 +21,7 @@ data class User(
     val email: String,
     @Enumerated(EnumType.STRING)
     val role: Role = Role.USER,
-    @ManyToMany(mappedBy = "authors")
+    @ManyToMany(mappedBy = "authors", fetch = FetchType.EAGER)
     val courses: MutableList<Course> = mutableListOf(),
     val password: String,
 )
